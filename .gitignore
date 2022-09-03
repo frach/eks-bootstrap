@@ -32,3 +32,6 @@ override.tf.json
 
 # Executables
 terraform
+
+# Configs
+config.tfvars
