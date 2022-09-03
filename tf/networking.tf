@@ -61,7 +61,10 @@ resource "aws_subnet" "main_publics" {
   map_public_ip_on_launch = true
   vpc_id                  = aws_vpc.main.id
 
-  tags = { Name = "${var.name_prefix}-main-subnet-pub-${each.value.az_suffix}" }
+  tags = {
+    Name                     = "${var.name_prefix}-subnet-pub-${each.value.az_suffix}"
+    "kubernetes.io/role/elb" = 1
+  }
 }
 
 resource "aws_route_table" "main_public" {
@@ -83,17 +86,13 @@ resource "aws_route_table_association" "main_public" {
 }
 
 
-# #-----------------------------#
-# #          ROUTE 53           #
-# #-----------------------------#
-# resource "aws_route53_zone" "private" {
-#   name = var.private_hosted_zone_name
+#-----------------------------#
+#          ROUTE 53           #
+#-----------------------------#
+resource "aws_route53_zone" "public" {
+  name = var.hosted_zone_name
 
-#   vpc {
-#     vpc_id = aws_vpc.main.id
-#   }
-
-#   tags = {
-#     Service = var.cost_tags.networking
-#   }
-# }
+  vpc {
+    vpc_id = aws_vpc.main.id
+  }
+}

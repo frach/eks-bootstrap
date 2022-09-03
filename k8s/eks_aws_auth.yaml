@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: kube-system
+  labels:
+    terraform.io/module: terraform-aws-modules.eks.aws
+data:
+  mapRoles: |
+    - rolearn: arn:aws:iam::${aws_account_id}:role/${name_prefix}-default-worker-role
+      username: system:node:{{EC2PrivateDNSName}}
+      groups:
+        - system:bootstrappers
+        - system:nodes
+  mapUsers: |
+    - userarn: arn:aws:iam::${aws_account_id}:user/iamadmin
+      username: iamadmin
+      groups:
+        - system:masters

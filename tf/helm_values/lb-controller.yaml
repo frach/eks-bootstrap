@@ -1,0 +1,9 @@
+# image may be different for a different region. See: https://docs.aws.amazon.com/eks/latest/userguide/add-ons-images.html
+image:
+  repository: 602401143452.dkr.ecr.${aws_region}.amazonaws.com/amazon/aws-load-balancer-controller
+  tag: v2.4.1
+clusterName: ${clusterName}
+region: ${aws_region}
+serviceAccount:
+  create: false
+  name: aws-load-balancer-controller

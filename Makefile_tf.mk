@@ -30,3 +30,9 @@ tf-apply: $(TERRAFORM_EXEC) tf-fmt
 
 tf-destroy: $(TERRAFORM_EXEC) tf-fmt
 	$(call tf_action,destroy,$(TERRAFORM_PARAMS))
+
+tf-apply-force: $(TERRAFORM_EXEC) tf-fmt
+	$(call tf_action,apply,$(TERRAFORM_PARAMS) -auto-approve)
+
+tf-destroy-force: $(TERRAFORM_EXEC) tf-fmt
+	$(call tf_action,destroy,$(TERRAFORM_PARAMS) -auto-approve)
