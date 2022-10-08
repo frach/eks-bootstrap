@@ -92,7 +92,8 @@ resource "aws_route_table_association" "main_public" {
 resource "aws_route53_zone" "public" {
   name = var.hosted_zone_name
 
-  vpc {
-    vpc_id = aws_vpc.main.id
-  }
+  # For a private Hosted Zone uncomment the following lines
+  # vpc {
+  #   vpc_id = aws_vpc.main.id
+  # }
 }

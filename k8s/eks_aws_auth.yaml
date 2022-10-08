@@ -17,3 +17,8 @@ data:
       username: iamadmin
       groups:
         - system:masters
+# For allowing additional users to control your EKS Cluster, add more entries like the following
+#     - userarn: arn:aws:iam::${aws_account_id}:user/another_user
+#       username: another_user
+#       groups:
+#         - system:masters

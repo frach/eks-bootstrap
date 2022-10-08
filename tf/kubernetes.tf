@@ -62,13 +62,14 @@ resource "helm_release" "lb_controller" {
 locals {
   manifests_template_vars = {
     aws_account_id = var.account_id
+    hosted_zone_id = aws_route53_zone.public.zone_id
     name_prefix    = var.name_prefix
     public_domain  = var.hosted_zone_name
   }
   manifests = [
     "eks_aws_auth.yaml",
     "eks_lb_controller.yaml",
-    # "eks_cluster_autoscaler.yaml",
+    "eks_cluster_autoscaler.yaml",
     # "eks_efs.yaml",
     "eks_external_dns.yaml"
   ]

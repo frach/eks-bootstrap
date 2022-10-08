@@ -70,6 +70,6 @@ spec:
             - --domain-filter=${public_domain}
             - --aws-zone-type=public
             - --registry=txt
-            - --txt-owner-id=Z068677114NMBUQBN8PRG
+            - --txt-owner-id=Z0527090ZAP8IV0JH88D
       securityContext:
         fsGroup: 65534

@@ -108,7 +108,7 @@ module "eks" {
       name            = "${var.name_prefix}-eks-nodegroup-default"
       use_name_prefix = false
 
-      min_size     = 0
+      min_size     = 1
       max_size     = 3
       desired_size = 1
 
@@ -134,9 +134,10 @@ module "eks" {
         max_unavailable_percentage = 50
       }
 
-      # tags = {
-      #   "k8s.io/cluster-autoscaler/enabled" = "FALSE"
-      # }
+      tags = {
+        "k8s.io/cluster-autoscaler/enabled"                                  = "true"
+        "k8s.io/cluster-autoscaler/${var.name_prefix}-eks-nodegroup-default" = "owned"
+      }
     }
   }
 }
