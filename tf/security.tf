@@ -86,14 +86,25 @@ resource "aws_iam_role" "pod_cluster_autoscaler" {
             "autoscaling:DescribeAutoScalingInstances",
             "autoscaling:DescribeLaunchConfigurations",
             "autoscaling:DescribeTags",
-            "autoscaling:SetDesiredCapacity",
-            "autoscaling:TerminateInstanceInAutoScalingGroup",
             "ec2:DescribeInstanceTypes",
             "ec2:DescribeLaunchTemplateVersions"
           ],
           "Resource" : "*",
           "Effect" : "Allow"
-        }
+        },
+        {
+          "Effect" : "Allow",
+          "Action" : [
+            "autoscaling:SetDesiredCapacity",
+            "autoscaling:TerminateInstanceInAutoScalingGroup"
+          ],
+          "Resource" : "*",
+          "Condition" : {
+            "StringEquals" : {
+              "aws:ResourceTag/k8s.io/cluster-autoscaler/${var.name_prefix}-eks-cluster" : "owned"
+            }
+          }
+        },
       ]
     })
   }

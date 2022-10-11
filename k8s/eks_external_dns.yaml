@@ -63,13 +63,11 @@ spec:
           args:
             - --source=service
             - --source=ingress
-            # - --source=istio-gateway
-            # - --source=istio-virtualservice
             - --policy=upsert-only
             - --provider=aws
             - --domain-filter=${public_domain}
             - --aws-zone-type=public
             - --registry=txt
-            - --txt-owner-id=Z0527090ZAP8IV0JH88D
+            - --txt-owner-id=${hosted_zone_id}
       securityContext:
         fsGroup: 65534

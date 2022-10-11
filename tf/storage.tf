@@ -3,7 +3,7 @@ module "efs_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.9.0"
 
-  name        = "${var.name_prefix}-platform-efs-sg"
+  name        = "${var.name_prefix}-efs-sg"
   description = "Security group dedicated to EFS mount targets."
   vpc_id      = aws_vpc.main.id
 
@@ -30,10 +30,21 @@ resource "aws_efs_file_system" "main" {
   }
 }
 
+# Mount targets should be deployed in each AZ
 resource "aws_efs_mount_target" "main" {
+  for_each = toset(["10.0.0.0/24", "10.0.1.0/24"])
+
   file_system_id  = aws_efs_file_system.main.id
-  subnet_id       = aws_subnet.main_publics["10.0.0.0/24"].id
+  subnet_id       = aws_subnet.main_publics[each.key].id
   security_groups = [module.efs_sg.security_group_id]
+}
+
+resource "aws_efs_access_point" "efs" {
+  file_system_id = aws_efs_file_system.main.id
+
+  tags = {
+    Name = "${var.name_prefix}-efs-ap"
+  }
 }
 
 # resource "aws_efs_file_system_policy" "main" {

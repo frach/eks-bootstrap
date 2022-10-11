@@ -1,6 +1,7 @@
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
 
+
   depends_on = [null_resource.wait_for_cluster]
 }
 
@@ -39,9 +40,9 @@ resource "null_resource" "wait_for_cluster" {
 }
 
 
-#-----------------------------#
+# -----------------------------#
 #           H E L M           #
-#-----------------------------#
+# -----------------------------#
 resource "helm_release" "lb_controller" {
   name = "aws-load-balancer-controller"
 
@@ -61,17 +62,19 @@ resource "helm_release" "lb_controller" {
 #-----------------------------#
 locals {
   manifests_template_vars = {
-    aws_account_id = var.account_id
-    hosted_zone_id = aws_route53_zone.public.zone_id
-    name_prefix    = var.name_prefix
-    public_domain  = var.hosted_zone_name
+    aws_account_id   = var.account_id
+    efs_main_id      = aws_efs_file_system.main.id
+    eks_cluster_name = module.eks.cluster_id
+    hosted_zone_id   = aws_route53_zone.public.zone_id
+    name_prefix      = var.name_prefix
+    public_domain    = var.hosted_zone_name
   }
   manifests = [
     "eks_aws_auth.yaml",
     "eks_lb_controller.yaml",
+    "eks_external_dns.yaml",
     "eks_cluster_autoscaler.yaml",
-    # "eks_efs.yaml",
-    "eks_external_dns.yaml"
+    "eks_efs.yaml"
   ]
 }
 

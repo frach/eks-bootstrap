@@ -55,14 +55,14 @@ module "eks" {
       type                          = "ingress"
       source_cluster_security_group = true
     }
-    game2048_ingress_from_everywhere = {
-      description = "Allow incomming 32048 traffic from Everywhere"
-      protocol    = "tcp"
-      from_port   = 32048
-      to_port     = 32048
-      type        = "ingress"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
+    # game2048_ingress_from_everywhere = {
+    #   description = "Allow incomming 32048 traffic from Everywhere"
+    #   protocol    = "tcp"
+    #   from_port   = 32048
+    #   to_port     = 32048
+    #   type        = "ingress"
+    #   cidr_blocks = ["0.0.0.0/0"]
+    # }
     http_ingress_from_everywhere = {
       description = "Allow incomming HTTP traffic from Everywhere"
       protocol    = "tcp"
@@ -79,14 +79,14 @@ module "eks" {
       type        = "ingress"
       cidr_blocks = ["0.0.0.0/0"]
     }
-    # nfs_ports_egress_to_efs_sg = {
-    #   description              = "Allow outgoing NFS ports to the EFS Security Group"
-    #   protocol                 = "tcp"
-    #   from_port                = 2049
-    #   to_port                  = 2049
-    #   type                     = "egress"
-    #   source_security_group_id = local.infra.efs_security_group_id
-    # }
+    nfs_ports_egress_to_efs_sg = {
+      description              = "Allow outgoing NFS ports to the EFS Security Group"
+      protocol                 = "tcp"
+      from_port                = 2049
+      to_port                  = 2049
+      type                     = "egress"
+      source_security_group_id = module.efs_sg.security_group_id
+    }
   }
 
   # IAM configs

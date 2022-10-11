@@ -12,7 +12,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: app-2048
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -20,6 +20,10 @@ spec:
     spec:
       containers:
       - image: public.ecr.aws/l6m2t8p7/docker-2048:latest
+        # UNCOMMENT WHEN ADDING EFS
+        volumeMounts:
+          - mountPath: /opt/persistent
+            name: efs-volume
         imagePullPolicy: Always
         name: app-2048
         ports:
@@ -29,6 +33,25 @@ spec:
             memory: 512M
           limits:
             memory: 1024M
+      # UNCOMMENT WHEN ADDING EFS
+      volumes:
+      - name: efs-volume
+        persistentVolumeClaim:
+          claimName: efs-claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-claim
+  namespace: game-2048
+spec:
+  storageClassName: efs-main-sc
+  accessModes:
+    - ReadWriteMany
+  volumeName: efs-main-pv
+  resources:
+    requests:
+      storage: 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -43,6 +66,7 @@ spec:
   type: NodePort
   selector:
     app.kubernetes.io/name: app-2048
+# UNCOMMENT WHEN ADDING LOADBALANCER
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -50,26 +74,38 @@ metadata:
   namespace: game-2048
   name: ingress-2048
   annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: eks-bootstrap-load-balancer
+    alb.ingress.kubernetes.io/tags: createdBy=aws-load-balancer-controller,env=development
     alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    external-dns.alpha.kubernetes.io/hostname: 2048.aws.rachwalak.net
-    external-dns.alpha.kubernetes.io/ttl: "60"
-    # alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-north-1:$AWS_ACCOUNT_ID:certificate/793bdf2a-1265-4121-9318-047090d3dfad
-    # alb.ingress.kubernetes.io/tags: createdBy=aws-load-balancer-controller
-    # alb.ingress.kubernetes.io/backend-protocol: HTTPS
-    # alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-2016-08
-    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
-    # alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
-    # external-dns.alpha.kubernetes.io/hostname: 2048.aws.rachwalak.net
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    # UNCOMMENT WHEN ADDING DNS
+    external-dns.alpha.kubernetes.io/hostname: game2048.aws.rachwalak.net
+    # UNCOMMENT WHEN ADDING SSL
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-west-1:819635879526:certificate/a170689b-0efd-4514-911b-b4b96ed05150
 spec:
   ingressClassName: alb
   rules:
+    # UNCOMMENT WHEN ADDING SSL
     - http:
         paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: service-2048
-              port:
-                number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ssl-redirect
+                port:
+                  name: use-annotation
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: service-2048
+                port:
+                  number: 80

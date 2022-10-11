@@ -4,6 +4,7 @@ image:
   tag: v2.4.1
 clusterName: ${clusterName}
 region: ${aws_region}
+replicaCount: 1
 serviceAccount:
   create: false
   name: aws-load-balancer-controller
